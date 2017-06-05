@@ -1,0 +1,13 @@
+---
+AWSTemplateFormatVersion: 2010-09-09
+Description: Terraform AWS pipeline
+#Parameters
+Resources:
+  # CodeCommit repository
+  Repository:
+    Type: AWS::CodeCommit::Repository
+    Properties:
+      RepositoryName: TerraformRepo
+      RepositoryDescription: Terraform repository
+
+  # CodePipeline
