@@ -1,13 +1,22 @@
 ---
 AWSTemplateFormatVersion: 2010-09-09
 Description: Terraform AWS pipeline
-#Parameters
+Parameters:
+  RepoName:
+    Type: String
+    Description: Name for CodeCommitRepository
 Resources:
+  
   # CodeCommit repository
   Repository:
     Type: AWS::CodeCommit::Repository
     Properties:
-      RepositoryName: TerraformRepo
+      RepositoryName: !Ref RepoName
       RepositoryDescription: Terraform repository
 
   # CodePipeline
+
+Outputs:
+  RepoSSHClone:
+    Description: Repository SSH URL
+    Value: !GetAtt Repository.CloneUrlSsh
