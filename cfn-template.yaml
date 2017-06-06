@@ -42,7 +42,18 @@ Resources:
                   - "codecommit:GetCommit"
                   - "codecommit:GetUploadArchiveStatus"
                   - "codecommit:UploadArchive"
-                
+        - PolicyName: s3-artifacts-policy
+          PolicyDocument:
+            Statement:
+              - Resource: !GetAtt ArtifactBucket.Arn
+                Effect: Allow
+                Action:
+                  - "s3:*"
+              - Resource: !Join ["", ["arn:aws:s3:::", Ref: "ArtifactBucket", "/*"]]
+                Effect: Allow
+                Action:
+                  - "s3:*"
+                 
   BuilderRole:
     Type: AWS::IAM::Role
     Properties:
