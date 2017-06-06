@@ -4,7 +4,10 @@ Description: Terraform AWS pipeline
 Parameters:
   RepoName:
     Type: String
-    Description: Name for CodeCommitRepository
+    Description: Name for CodeCommit repository
+  RepoBranch:
+    Type: String
+    Description: Name for repository branch to monitor
 Resources:
   
   # CodeCommit repository
@@ -14,6 +17,7 @@ Resources:
       RepositoryName: !Ref RepoName
       RepositoryDescription: Terraform repository
 
+  # CodePipeline
   PipelineRole:
     Type: AWS::IAM::Role
     Properties:
