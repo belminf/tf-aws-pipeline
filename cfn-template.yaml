@@ -8,16 +8,17 @@ Parameters:
   RepoBranch:
     Type: String
     Description: Name for repository branch to monitor
+  BuilderProjectName:
+    Type: String
+    Description: Name for CodeBuild project
 Resources:
   
-  # CodeCommit repository
   Repository:
     Type: AWS::CodeCommit::Repository
     Properties:
       RepositoryName: !Ref RepoName
       RepositoryDescription: Terraform repository
 
-  # CodePipeline
   PipelineRole:
     Type: AWS::IAM::Role
     Properties:
@@ -42,10 +43,62 @@ Resources:
                   - "codecommit:GetUploadArchiveStatus"
                   - "codecommit:UploadArchive"
                 
-  # CodePipeline
+  BuilderRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          Effect: Allow
+          Principal:
+            Service: codebuild.amazonaws.com
+          Action: sts:AssumeRole
+      Path: /
+      Policies:
+        - PolicyName: s3-policy
+          PolicyDocument:
+            Statement:
+              - Resource: "*"
+                Effect: Allow
+                Action:
+                  - "s3:PutObject"
+                  - "s3:GetObject"
+                  - "s3:GetObjectVersion"
+        - PolicyName: cloudwatch-policy
+          PolicyDocument:
+            Statement:
+              - Resource: "*"
+                Effect: Allow
+                Action:
+                  - "logs:CreateLogGroup"
+                  - "logs:CreateLogStream"
+                  - "logs:PutLogEvents"
+        - PolicyName: codecommit-policy
+          PolicyDocument:
+            Statement:
+              - Resource: !GetAtt Repository.Arn
+                Effect: Allow
+                Action:
+                  - "codecommit:GitPull"
   ArtifactBucket:
     Type: AWS::S3::Bucket
 
+  Builder:
+    Type: AWS::CodeBuild::Project
+    Properties:
+      Name: !Ref BuilderProjectName
+      Description: A description about my project
+      ServiceRole: !GetAtt BuilderRole.Arn
+      Artifacts:
+        Type: CODEPIPELINE
+      Source:
+        Type: CODEPIPELINE
+      Environment:
+        Type: LINUX_CONTAINER
+        ComputeType: BUILD_GENERAL1_SMALL
+        Image: aws/codebuild/java:openjdk-8
+      TimeoutInMinutes: 10
+    
 Outputs:
   RepoSSHClone:
     Description: Repository SSH URL
