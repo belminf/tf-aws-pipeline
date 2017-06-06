@@ -39,6 +39,8 @@ Resources:
                   - "codecommit:UploadArchive"
                 
   # CodePipeline
+  ArtifactBucket:
+    Type: AWS::S3::Bucket
 
 Outputs:
   RepoSSHClone:
